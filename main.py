@@ -4,8 +4,8 @@ conn=mysql.connect(host='localhost', user='root', password='nazeef')
 cs=conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
-cs.execute('create table if not exists Member_Info(id int(10) primary key not null ,name varchar(30),age int,gender varchar(6),mobile int,Activities varchar(40))')
-cs.execute('create table if not exists Member_package_info(id int(10),name varchar(30),Activities varchar(40),special_package varchar(40),total_payment int,monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id))')
+cs.execute('create table if not exists Member_Info(id int(10) primary key not null,Member_Name varchar(30),age int,gender varchar(6),mobile int,Activities varchar(40),password varchar(20) invisible)')
+cs.execute('create table if not exists Member_package_info(id int(10),Member_Name varchar(30),Activities varchar(40),special_package varchar(40),total_payment int,monthly_payment int,end_of_membership date,constraint foreign key(id,Member_Name,Activities) references Member_Info(id,Member_Name,Activities))')
 class bgc:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -45,7 +45,8 @@ if login == 'admin':
               g=input('Enter Gender:')
               m=int(input('Enter mobile no.:'))
               act=input('Enter Activities:')
-              cs.execute("insert into member_info values(%s,'%s',%s,'%s',%s,'%s')"%(i,n,a,g,m,act))
+              pw=input('Enter password:')
+              cs.execute("insert into member_info values(%s,'%s',%s,'%s',%s,'%s','%s')"%(i,n,a,g,m,act,pw))
               conn.commit()
               print(bgc.OKGREEN + 'Details Inserted')
               sp=input('Enter special package:')
@@ -87,30 +88,19 @@ if login == 'admin':
 elif login == 'member':
     while True:
         print('''MENU:
-        1.Create account.
-        2.Login.
+        1.Login.
+        2.View your details.
         3.Exit.'''.format(bgc.BOLD))
         ch = int(input('Enter choice 1/2/3:'))
         if ch == 1:
-            print('Username should be atleast 6 characters long.')
-            username = input('Enter username: ')
-            if len(username) < 6:
-                print('Username should be atleast 6 characters long.')
-                continue
+            mobile = input('Enter mobile no.: ')
             password = input('Enter password: ')
-            mobile= input('Enter mobile no.: ')
-            if len(password) < 6:
-                print('Password should be atleast 6 characters long.')
-                continue
-            print('Account created successfully.')
-        elif ch==2:
-            username = input('Enter username: ')
-            password = input('Enter password: ')
-            if username == 'admin' and password == '123456':
-                print('Welcome Admin.')
+            if mobile and password in cs.execute("select * from member_info where mobile=%s and password='%s'"%(mobile,password)):
+                print('Welcome' + cs.execute("select member_name from member_info where mobile=%s and password='%s'"%(mobile,password)).fetchone()[1])
                 break
             else:
-                print('Invalid username or password.')
+                print('Invalid mobile number or password.')
                 continue
+
 else:
     pass
