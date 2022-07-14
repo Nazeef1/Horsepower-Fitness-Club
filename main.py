@@ -1,6 +1,6 @@
 from tabulate import tabulate
 import mysql.connector as mysql
-conn=mysql.connect(host='localhost',user='root',password='nazeef')
+conn=mysql.connect(host='localhost', user='root', password='nazeef')
 cs=conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
@@ -22,13 +22,13 @@ class bgc:
     MAGENTA = '\033[35m'
     CYAN = '\033[36m'
     BLACK = '\033[30m'
-print(bgc.BOLD+bgc.UNDERLINE+"WELCOME TO HORSEPOWER HEALTH CLUB")
+print("WELCOME TO HORSEPOWER HEALTH CLUB"+bgc.BOLD+bgc.UNDERLINE)
 login=input('Are you a Member or an Admin?: ')
 if login == 'admin':
-    password=input('Enter your password: ')
+    password=input('Enter your password: '+bgc.ENDC)
     if password=='123456':
         while True:
-           print(bgc.BOLD+ bgc.WHITE+'''MENU:
+           print(bgc.BOLD+'''MENU:
             1.Add new member.
             2.Show all members.
             3.Find member.
