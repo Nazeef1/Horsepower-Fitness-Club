@@ -4,7 +4,7 @@ conn=mysql.connect(host='localhost', user='root', password='nazeef')
 cs=conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
-cs.execute('create table if not exists Member_Info(id int(10) primary key not null auto_increment,name varchar(30),age int,mobile int,Activities varchar(40),Monthly_Fee int)')
+cs.execute('create table if not exists Member_Info(id int(10) primary key not null auto_increment,name varchar(30),age int,mobile int,Activities varchar(40),Monthly_Fee int,)')
 class bgc:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -70,5 +70,35 @@ if login == 'admin':
            else:
                 conn.close()
                 break
+elif login == 'member':
+    while True:
+        print('''MENU:
+        1.Create account.
+        2.Login.
+        3.Exit.'''.format(bgc.BOLD))
+        ch = int(input('Enter choice 1/2/3:'))
+        if ch == 1:
+            print('Username should be atleast 6 characters long.')
+            username = input('Enter username: ')
+            if len(username) < 6:
+                print('Username should be atleast 6 characters long.')
+                continue
+            password = input('Enter password: ')
+            mobile= input('Enter mobile no.: ')
+            if len(password) < 6:
+                print('Password should be atleast 6 characters long.')
+                continue
+            print('Account created successfully.')
+        elif ch==2:
+            username = input('Enter username: ')
+            password = input('Enter password: ')
+            if username == 'admin' and password == '123456':
+                print('Welcome Admin.')
+                break
+            else:
+                print('Invalid username or password.')
+                continue
+
+
 else:
     pass
