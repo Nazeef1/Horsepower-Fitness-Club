@@ -8,7 +8,7 @@ cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
 cs.execute(
     'create table if not exists Member_Info(id int(10) primary key not null,Member_Name varchar(30),age int,'
-    'gender varchar(6),mobile int,Activities varchar(40),password varchar(20) invisible)')
+    'gender varchar(6),mobile int,Activities varchar(40),password varchar(20))')
 cs.execute(
     "create table if not exists Member_package_info(id int(10),special_package varchar(40),total_payment int,"
     "monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id) on delete "
@@ -59,21 +59,23 @@ if login == 'admin':
                 pw = input('Enter password:')
                 cs.execute("insert into member_info values(%s,'%s',%s,'%s',%s,'%s','%s')" % (i, n, a, g, m, act, pw))
                 conn.commit()
-                print(bgc.OKGREEN + 'Details Inserted')
+                print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
+                i = int(input('Enter id no.:'))
                 sp = input('Enter special package:')
                 t = int(input('Enter total payment:'))
                 mp = int(input('Enter monthly payment:'))
                 e = input('Enter end of membership:')
                 cs.execute(
-                    "insert into member_package_info values(%s,'%s','%s','%s',%s,%s,%s)" % (i, n, act, sp, t, mp, e))
+                    "insert into member_package_info values(%s,'%s',%s,%s,%s)" % (i, sp, t, mp, e))
                 conn.commit()
+                print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
             elif ch == 2:
                 cs.execute('select * from member_info')
                 print(tabulate(cs.fetchall(), headers=['id', 'name', 'age', 'gender', 'mobile', 'Activities'],
                                tablefmt='fancy_grid'))
             elif ch == 3:
                 cs.execute('select * from member_package_info')
-                print(tabulate(cs.fetchall(), headers=['id', 'name', 'Activities', 'special_package', 'total_payment',
+                print(tabulate(cs.fetchall(), headers=['id', 'special_package', 'total_payment',
                                                        'monthly_payment', 'end_of_membership'], tablefmt='fancy_grid'))
             elif ch == 4:
                 n = input('Enter name to find:')
