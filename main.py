@@ -2,15 +2,15 @@ from tabulate import tabulate
 import datetime
 import mysql.connector as mysql
 
-conn = mysql.connect(host='localhost', user='root', password='nazeef')
+conn = mysql.connect(host='localhost', user='root', password='root')
 cs = conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
 cs.execute(
-    'create table if not exists Member_Info(id int(10) primary key not null,Member_Name varchar(30),age int,'
-    'gender varchar(6),mobile int,Activities varchar(40),password varchar(20))')
+    'create table if not exists Member_Info(id int(10) primary key not null auto_increment,Member_Name varchar(30),age int,'
+    'gender varchar(6),mobile int,Activities varchar(40),password varchar(20, unique(member_name,password)))')
 cs.execute(
-    "create table if not exists Member_package_info(id int(10),special_package varchar(40),total_payment int,"
+    "create table if not exists Member_package_info(package_id int primary key not null auto_increment, id int(10),special_package varchar(40),total_payment int,"
     "monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id) on delete "
     "cascade)")
 
@@ -36,7 +36,7 @@ class bgc:
 
 print("WELCOME TO HORSEPOWER HEALTH CLUB" + bgc.BOLD + bgc.UNDERLINE)
 login = input('Are you a Member or an Admin?: ')
-if login == 'admin':
+if login == 'admin' or 'ADMIN':
     password = input('Enter your password: ' + bgc.ENDC)
     if password == '123456':
         while True:
@@ -44,29 +44,28 @@ if login == 'admin':
             1.Add new member.
             2.Show all members.
             3.Show all members packages.
-            4.Find member.
+            4.Select member.
             5.Update member package.
             6.Remove member.
             .EXIT.''')
             ch = int(input('Enter choice 1/2/3/4/5/6/7:'))
             if ch == 1:
-                i = int(input('Enter id no.:'))
                 n = input('Enter Name:')
                 a = int(input('Enter Age:'))
                 g = input('Enter Gender:')
                 m = int(input('Enter mobile no.:'))
                 act = input('Enter Activities:')
                 pw = input('Enter password:')
-                cs.execute("insert into member_info values(%s,'%s',%s,'%s',%s,'%s','%s')" % (i, n, a, g, m, act, pw))
+                cs.execute("insert into member_info(member_name,age,gender,mobile,activities,password) values('%s',"
+                           "%s,'%s',%s,'%s','%s')" % ( n, a, g, m, act, pw))
                 conn.commit()
                 print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
-                i = int(input('Enter id no.:'))
                 sp = input('Enter special package:')
                 t = int(input('Enter total payment:'))
                 mp = int(input('Enter monthly payment:'))
                 e = input('Enter end of membership:')
                 cs.execute(
-                    "insert into member_package_info values(%s,'%s',%s,%s,%s)" % (i, sp, t, mp, e))
+                    "insert into member_package_info(special_package,total_payment,monthly_payment,end_of_membership) values('%s',%s,%s,'%s')" % ( sp, t, mp, e))
                 conn.commit()
                 print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
             elif ch == 2:
