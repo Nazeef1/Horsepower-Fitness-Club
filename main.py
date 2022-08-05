@@ -2,17 +2,29 @@ from tabulate import tabulate
 import datetime
 import mysql.connector as mysql
 
-conn = mysql.connect(host='localhost', user='root', password='root')
+
+def findByName(n):
+    cs.execute("Select * from member_info where Member_Name='%s'" % n)
+    t = cs.fetchall()
+    nt = []
+    for i in t:
+        nt.append(i[:6])
+    print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities']))
+
+
+conn = mysql.connect(host='localhost', user='root', password='00b')
 cs = conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
 cs.execute(
     'create table if not exists Member_Info(id int(10) primary key not null auto_increment,Member_Name varchar(30),age int,'
-    'gender varchar(6),mobile int,Activities varchar(40),password varchar(20, unique(member_name,password)))')
+    'gender char(1),mobile int,Activities varchar(40),password varchar(20))')
 cs.execute(
-    "create table if not exists Member_package_info(package_id int primary key not null auto_increment, id int(10),special_package varchar(40),total_payment int,"
-    "monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id) on delete "
+    "create table if not exists Member_package_info(packageId int primary key auto_increment, id int(10),special_package varchar(40),total_payment int," +
+    "monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id) on delete " +
     "cascade)")
+cs.execute("create table if not exists progress_tracker(id int, date date,weight int,height decimal(5,2), " +
+           'constraint foreign key(id) references Member_Info(id) on delete cascade)')
 
 
 class bgc:
@@ -36,148 +48,165 @@ class bgc:
 
 print("WELCOME TO HORSEPOWER HEALTH CLUB" + bgc.BOLD + bgc.UNDERLINE)
 login = input('Are you a Member or an Admin?: ')
-if login == 'admin' or 'ADMIN':
+if login == 'admin':
     password = input('Enter your password: ' + bgc.ENDC)
     if password == '123456':
         while True:
             print(bgc.BOLD + '''MENU:
             1.Add new member.
             2.Show all members.
-            3.Show all members packages.
-            4.Select member.
-            5.Update member package.
-            6.Remove member.
-            .EXIT.''')
-            ch = int(input('Enter choice 1/2/3/4/5/6/7:'))
+            3.Add member package.
+            4.Show all members packages.
+            5.Find member.
+            6.Update member package.
+            7.Remove member.
+            8.EXIT.''')
+            ch = int(input('Enter choice 1/2/3/4/5/6/7/8:'))
             if ch == 1:
-                n = input('Enter Name:')
-                a = int(input('Enter Age:'))
-                g = input('Enter Gender:')
-                m = int(input('Enter mobile no.:'))
-                act = input('Enter Activities:')
-                pw = input('Enter password:')
-                cs.execute("insert into member_info(member_name,age,gender,mobile,activities,password) values('%s',"
-                           "%s,'%s',%s,'%s','%s')" % ( n, a, g, m, act, pw))
-                conn.commit()
-                print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
-                sp = input('Enter special package:')
-                t = int(input('Enter total payment:'))
-                mp = int(input('Enter monthly payment:'))
-                e = input('Enter end of membership:')
+                a = input("Enter Member name: ")
+                b = int(input("Enter Member age: "))
+                c = input("Enter Member gender (m/f): ")
+                d = int(input("Enter Member mobile number: "))
+                e = input("Enter Member activities: ")
+                f = input("Enter Member password: ")
+
                 cs.execute(
-                    "insert into member_package_info(special_package,total_payment,monthly_payment,end_of_membership) values('%s',%s,%s,'%s')" % ( sp, t, mp, e))
+                    "insert into Member_Info(Member_Name, age, gender, mobile, Activities, password) VALUES('%s',%s,'%s',%s,'%s','%s')" % (
+                    a, b, c, d, e, f))
                 conn.commit()
                 print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
+
             elif ch == 2:
-                cs.execute('select * from member_info')
-                print(tabulate(cs.fetchall(), headers=['id', 'name', 'age', 'gender', 'mobile', 'Activities'],
-                               tablefmt='fancy_grid'))
+                cs.execute("Select * from Member_Info")
+                t = cs.fetchall()
+                nt = []
+                for i in t:
+                    nt.append(i[:6])
+                print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities']))
+
             elif ch == 3:
-                cs.execute('select * from member_package_info')
-                print(tabulate(cs.fetchall(), headers=['id', 'special_package', 'total_payment',
-                                                       'monthly_payment', 'end_of_membership'], tablefmt='fancy_grid'))
-            elif ch == 4:
-                n = input('Enter name to find:')
-                cs.execute("select * from member_info where name='%s'" % n)
-                print(tabulate(cs.fetchall(), headers=['id', 'name', 'age', 'gender', 'mobile', 'Activities'],
-                               tablefmt='fancy_grid'))
-            elif ch == 5:
-                n = input('Enter name to change:')
-                cs.execute('select * from member_package_info where name="%s"' % n)
-                print(tabulate(cs.fetchall(), headers=['id', 'name', 'Activities', 'special_package', 'total_payment',
-                                                       'monthly_payment', 'end_of_membership'], tablefmt='fancy_grid'))
-                act = input('Enter new activities:')
+                id = int(input("Enter member id: "))
                 sp = input('Enter special package:')
                 t = int(input('Enter total payment:'))
                 mp = int(input('Enter monthly payment:'))
                 e = input('Enter end of membership:')
                 cs.execute(
-                    "update member_package_info set Activities='%s',special_package='%s',total_payment=%s,"
-                    "monthly_payment=%s,end_of_membership='%s' where name='%s'" % (
-                        act, sp, t, mp, e, n))
+                    "insert into member_package_info(id, special_package,total_payment,monthly_payment,end_of_membership) values(%s, '%s',%s,%s,'%s')" % (
+                        id, sp, t, mp, e))
                 conn.commit()
-                print(bgc.OKGREEN + 'Details Updated')
+                print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
+
+            elif ch == 4:
+                cs.execute("Select * from member_package_info")
+                t = cs.fetchall()
+                nt = []
+                for i in t:
+                    nt.append(i)
+                print(tabulate(nt, headers=['Package ID', 'ID', 'Special Package', 'Total Payment', 'Monthly Payment',
+                                            'End of Membership']))
+
+            elif ch == 5:
+                n = input('Enter name to find:')
+                findByName(n)
+
             elif ch == 6:
-                n = input('Enter name to delete:')
-                cs.execute("delete from member_info where name='%s'" % n)
+                n = input('Enter name to change:')
+                findByName(n)
+
+                id = int(input("Enter member ID"))
+                cs.execute("select * from member_package_info where id='%s'" % id)
+                fet = cs.fetchall()
+                if (len(fet) != 0):
+                    print(
+                        tabulate(fet,
+                                 headers=['package_id', 'id', 'special_package', 'total_payment', 'monthly_payment',
+                                          'end_of_membership'],
+                                 tablefmt='fancy_grid'))
+                    packId = int(input('Enter package id to update:'))
+                    sp = input('Enter special package:')
+                    t = int(input('Enter total payment:'))
+                    mp = int(input('Enter monthly payment:'))
+                    e = input('Enter end of membership:')
+                    cs.execute(
+                        "update member_package_info set special_package='%s',total_payment=%s,"
+                        "monthly_payment=%s,end_of_membership='%s' where packageId=%s" % (
+                            sp, t, mp, e, packId))
+                    conn.commit()
+
+                    print(bgc.OKGREEN + 'Details Updated')
+                else:
+                    print("Members package details are empty")
+
+            elif ch == 7:
+                n = input('Enter id to remove')
+                cs.execute("delete from member_info where id = %s" % n)
                 conn.commit()
                 print('Details Deleted' + bgc.OKGREEN)
-            else:
-                conn.close()
+
+            elif ch == 8:
                 break
+
     else:
         print(bgc.FAIL + 'Wrong Password' + bgc.ENDC)
+
 elif login == 'member':
     while True:
         print('''MENU:
         1.Login.
         2.Exit.'''.format(bgc.BOLD))
-        ch = int(input('Enter choice 1/2/3:'))
-        if ch == 1:
-            mobile = input('Enter mobile no.: ')
-            password = input('Enter password: ')
-            if mobile and password in cs.execute(
-                    "select * from member_info where mobile=%s and password='%s'" % (mobile, password)):
-                print('Welcome' + cs.execute("select member_name from member_info where mobile=%s and password='%s'" % (
-                    mobile, password)).fetchone()[1])
-                break
+        a = int(input('Enter choice 1/2'))
+        if a == 1:
+            mobile = input("Enter your mobile: ")
+            password = input("Enter your password: ")
+            cs.execute(
+                "SELECT id, mobile, password from member_info WHERE mobile = %s AND password = '%s'" % (
+                    mobile, password))
+            t = cs.fetchall()
+            if len(t) > 0:
+                print("Login successful")
+                userId = t[0][0]
+                while True:
+                    print('''What would you like to do?
+                                                1.Insert details in your progress tracker.
+                                                2.View your progress tracker.
+                                                3.View your package details.
+                                                4.Log Out.'''.format(bgc.BOLD))
+                    ch = int(input('Enter choice 1/2/3/4:'))
+                    if ch == 1:
+                        date = input('Enter date: ')
+                        weight = int(input('Enter weight: '))
+                        height = float(input('Enter height (metre): '))
+                        cs.execute(
+                            "insert into progress_tracker value (%s,'%s',%s,%s)" % (userId, date, weight, height))
+                        conn.commit()
+                        print(bgc.OKGREEN + 'Details Inserted')
+
+                    elif ch == 2:
+                        cs.execute(
+                            'select id, date, weight, height, weight/(height*height) as bmi from progress_tracker')
+                        print(tabulate(cs.fetchall(),
+                                       headers=['userId', 'date', 'weight', 'height', 'bmi'],
+                                       tablefmt='fancy_grid'))
+
+                    elif ch == 3:
+                        cs.execute(
+                            "select * from member_package_info where id = %s" % userId)
+                        print(tabulate(cs.fetchall(),
+                                       headers=['package_id', 'id', 'special_package', 'total_payment', 'monthly_payment',
+                                                'end_of_membership'],
+                                       tablefmt='fancy_grid'))
+
+                    elif ch == 4:
+                        break
+
+                    else:
+                        print('Invalid choice')
+                        continue
+
             else:
-                print('Invalid mobile number or password.')
+                print("Login Failed")
                 continue
-            print('''What would you like to do?
-            1.Insert details in your progress tracker.
-            2.View your progress tracker.
-            3.View your package details.
-            4.Log Out.'''.format(bgc.BOLD))
-            ch = int(input('Enter choice 1/2/3/4:'))
-            if ch == 1:
-                cs.execute(
-                    'create table if not exists progress_tracker(date text,weight int,height int,weight*height**2 as '
-                    'bmi int, workouts varchar(20),weight_loss int,weight_gain int)')
-                date = input('Enter date: ')
-                weight = int(input('Enter weight: '))
-                height = int(input('Enter height: '))
-                workouts = input('Enter workouts: ')
-                weight_loss = int(input('Enter weight loss: '))
-                weight_gain = int(input('Enter weight gain: '))
-                bmi = weight * height ** 2
-                cs.execute("insert into progress_tracker values('%s',%s,%s,%s,'%s',%s,%s)" % (
-                    date, weight, height, bmi, workouts, weight_loss, weight_gain))
-                conn.commit()
-                print(bgc.OKGREEN + 'Details Inserted')
-            elif ch == 2:
-                cs.execute('select * from progress_tracker')
-                print(tabulate(cs.fetchall(),
-                               headers=['date', 'weight', 'height', 'bmi', 'workouts', 'weight_loss', 'weight_gain'],
-                               tablefmt='fancy_grid'))
-            elif ch == 3:
-                cs.execute('select * from member_package_info where name="%s"' % cs.execute(
-                    "select member_name from member_info where mobile=%s and password='%s'" % (
-                        mobile, password)).fetchone()[1])
-                print(tabulate(cs.fetchall(), headers=['id', 'name', 'Activities', 'special_package', 'total_payment',
-                                                       'monthly_payment', 'end_of_membership'], tablefmt='fancy_grid'))
-                today = datetime.datetime.now()
-                end_date = datetime.datetime(int(cs.execute(
-                    "select end_of_membership from member_package_info where name='%s'" % cs.execute(
-                        "select member_name from member_info where mobile=%s and password='%s'" % (
-                            mobile, password)).fetchone()[1]).fetchone()[0][0:4]), int(cs.execute(
-                    "select end_of_membership from member_package_info where name='%s'" % cs.execute(
-                        "select member_name from member_info where mobile=%s and password='%s'" % (
-                            mobile, password)).fetchone()[1]).fetchone()[0][5:7]), int(cs.execute(
-                    "select end_of_membership from member_package_info where name='%s'" % cs.execute(
-                        "select member_name from member_info where mobile=%s and password='%s'" % (
-                            mobile, password)).fetchone()[1]).fetchone()[0][8:10]))
-                difference = end_date.date() - today.date()
-                print(difference.days, 'days remaining for your membership.')
-                if difference.days < 7:
-                    print('Your membership is about to expire.'
-                          'Please renew your membership at the fitness club counter.')
-                elif difference.days <= 0:
-                    print('Your membership has expired.')
-            else:
-                print("Thank You")
-                print(bgc.OKGREEN + 'Logged Out')
-                conn.close()
-                break
+        elif a == 2:
+            break
 else:
     pass
