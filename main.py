@@ -1,5 +1,4 @@
 from tabulate import tabulate
-import datetime
 import mysql.connector as mysql
 
 
@@ -10,9 +9,7 @@ def findByName(n):
     for i in t:
         nt.append(i[:6])
     print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities']))
-
-
-conn = mysql.connect(host='localhost', user='root', password='00b')
+conn = mysql.connect(host='localhost', user='root', password='oob')
 cs = conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
@@ -46,10 +43,10 @@ class bgc:
     BLACK = '\033[30m'
 
 
-print("WELCOME TO HORSEPOWER HEALTH CLUB" + bgc.BOLD + bgc.UNDERLINE)
-login = input('Are you a Member or an Admin?: ')
-if login == 'admin':
-    password = input('Enter your password: ' + bgc.ENDC)
+print(bgc.RED+"WELCOME TO HORSEPOWER HEALTH CLUB" + bgc.ENDC)
+login = input(bgc.BLUE+'Are you a Member or an Admin?: ')
+if login.lower() == 'admin':
+    password = input('Enter your password: ' + bgc.RED + bgc.ENDC)
     if password == '123456':
         while True:
             print(bgc.BOLD + '''MENU:
@@ -152,9 +149,9 @@ if login == 'admin':
 elif login == 'member':
     while True:
         print('''MENU:
-        1.Login.
-        2.Exit.'''.format(bgc.BOLD))
-        a = int(input('Enter choice 1/2'))
+1.Login.
+2.Exit.'''.format(bgc.BOLD))
+        a = int(input('Enter choice 1/2: '))
         if a == 1:
             mobile = input("Enter your mobile: ")
             password = input("Enter your password: ")
@@ -167,10 +164,10 @@ elif login == 'member':
                 userId = t[0][0]
                 while True:
                     print('''What would you like to do?
-                                                1.Insert details in your progress tracker.
-                                                2.View your progress tracker.
-                                                3.View your package details.
-                                                4.Log Out.'''.format(bgc.BOLD))
+1.Insert details in your progress tracker.
+2.View your progress tracker.
+3.View your package details.
+4.Log Out.'''.format(bgc.BOLD))
                     ch = int(input('Enter choice 1/2/3/4:'))
                     if ch == 1:
                         date = input('Enter date: ')
