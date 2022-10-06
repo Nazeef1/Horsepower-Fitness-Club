@@ -1,5 +1,7 @@
-from tabulate import tabulate
+import datetime
 import mysql.connector as mysql
+from tabulate import tabulate
+import maskpass
 
 
 def findByName(n):
@@ -9,13 +11,17 @@ def findByName(n):
     for i in t:
         nt.append(i[:6])
     print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities']))
-conn = mysql.connect(host='localhost', user='root', password='oob')
+
+
+
+
+conn = mysql.connect(host='localhost', user='root', password='password')
 cs = conn.cursor()
 cs.execute("create database if not exists horsepower")
 cs.execute("use horsepower")
 cs.execute(
     'create table if not exists Member_Info(id int(10) primary key not null auto_increment,Member_Name varchar(30),age int,'
-    'gender char(1),mobile int,Activities varchar(40),password varchar(20))')
+    'gender char(1),mobile int unique,Activities varchar(40),password varchar(20))')
 cs.execute(
     "create table if not exists Member_package_info(packageId int primary key auto_increment, id int(10),special_package varchar(40),total_payment int," +
     "monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id) on delete " +
@@ -43,21 +49,24 @@ class bgc:
     BLACK = '\033[30m'
 
 
-print(bgc.RED+"WELCOME TO HORSEPOWER HEALTH CLUB" + bgc.ENDC)
-login = input(bgc.BLUE+'Are you a Member or an Admin?: ')
-if login.lower() == 'admin':
-    password = input('Enter your password: ' + bgc.RED + bgc.ENDC)
+print(bgc.HEADER+"WELCOME TO HORSEPOWER HEALTH CLUB" + bgc.ENDC)
+print(bgc.BOLD+'Are you a Member or an Admin?'
+              '\nselect 1 for Member'
+              '\nselect 2 for Admin')
+login=input('Enter Your Choice:'+bgc.ENDC)
+if login == '1':
+    password = input('Enter your password: ' + bgc.ENDC)
     if password == '123456':
         while True:
-            print(bgc.BOLD + '''MENU:
-            1.Add new member.
-            2.Show all members.
-            3.Add member package.
-            4.Show all members packages.
-            5.Find member.
-            6.Update member package.
-            7.Remove member.
-            8.EXIT.''')
+            print(bgc.CYAN + '''MENU:
+1.Add new member.
+2.Show all members.
+3.Add member package.
+4.Show all members packages.
+5.Find member.
+6.Update member package.
+7.Remove member.
+8.EXIT.'''+bgc.ENDC)
             ch = int(input('Enter choice 1/2/3/4/5/6/7/8:'))
             if ch == 1:
                 a = input("Enter Member name: ")
@@ -69,7 +78,7 @@ if login.lower() == 'admin':
 
                 cs.execute(
                     "insert into Member_Info(Member_Name, age, gender, mobile, Activities, password) VALUES('%s',%s,'%s',%s,'%s','%s')" % (
-                    a, b, c, d, e, f))
+                        a, b, c, d, e, f))
                 conn.commit()
                 print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
 
@@ -79,7 +88,8 @@ if login.lower() == 'admin':
                 nt = []
                 for i in t:
                     nt.append(i[:6])
-                print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities']))
+                print(bgc.CYAN + tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities'],
+                                          tablefmt='fancy_grid') + bgc.ENDC)
 
             elif ch == 3:
                 id = int(input("Enter member id: "))
@@ -94,13 +104,15 @@ if login.lower() == 'admin':
                 print(bgc.OKGREEN + 'Details Inserted' + bgc.ENDC)
 
             elif ch == 4:
-                cs.execute("Select * from member_package_info")
+                cs.execute("Select * from member_info m,member_package_info p where m.id=p.id")
                 t = cs.fetchall()
                 nt = []
                 for i in t:
-                    nt.append(i)
-                print(tabulate(nt, headers=['Package ID', 'ID', 'Special Package', 'Total Payment', 'Monthly Payment',
-                                            'End of Membership']))
+                    nt.append(i[:11])
+                print(bgc.BLUE + tabulate(nt,
+                                          headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities', 'Package ID',
+                                                   'ID', 'Special Package', 'Total Payment', 'Monthly Payment',
+                                                   'End of Membership'], tablefmt='fancy_grid') + bgc.ENDC)
 
             elif ch == 5:
                 n = input('Enter name to find:')
@@ -138,20 +150,20 @@ if login.lower() == 'admin':
                 n = input('Enter id to remove')
                 cs.execute("delete from member_info where id = %s" % n)
                 conn.commit()
-                print('Details Deleted' + bgc.OKGREEN)
+                print(bgc.OKGREEN + 'Details Deleted' + bgc.ENDC)
 
             elif ch == 8:
                 break
 
     else:
         print(bgc.FAIL + 'Wrong Password' + bgc.ENDC)
-
-elif login == 'member':
+        print(bgc.BOLD + 'Retry Login' + bgc.ENDC)
+elif login == '2':
     while True:
         print('''MENU:
 1.Login.
-2.Exit.'''.format(bgc.BOLD))
-        a = int(input('Enter choice 1/2: '))
+2.Exit.'''.format(bgc.BLUE))
+        a = int(input('Enter choice 1/2:'))
         if a == 1:
             mobile = input("Enter your mobile: ")
             password = input("Enter your password: ")
@@ -167,7 +179,7 @@ elif login == 'member':
 1.Insert details in your progress tracker.
 2.View your progress tracker.
 3.View your package details.
-4.Log Out.'''.format(bgc.BOLD))
+4.Log Out.'''.format(bgc.CYAN))
                     ch = int(input('Enter choice 1/2/3/4:'))
                     if ch == 1:
                         date = input('Enter date: ')
@@ -189,15 +201,15 @@ elif login == 'member':
                         cs.execute(
                             "select * from member_package_info where id = %s" % userId)
                         print(tabulate(cs.fetchall(),
-                                       headers=['package_id', 'id', 'special_package', 'total_payment', 'monthly_payment',
-                                                'end_of_membership'],
-                                       tablefmt='fancy_grid'))
-
+                                       headers=['package_id', 'id', 'special_package', 'total_payment',
+                                                'monthly_payment',
+                                                'end_of_membership'], tablefmt='fancy_grid'))
                     elif ch == 4:
+                        print(bgc.OKGREEN + 'Logged Out' + bgc.ENDC)
                         break
 
                     else:
-                        print('Invalid choice')
+                        print(bgc.RED + 'Invalid choice' + bgc.ENDC)
                         continue
 
             else:
