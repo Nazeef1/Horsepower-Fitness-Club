@@ -6,13 +6,13 @@ import maskpass
 def main():
 
 
-    def findByName(n):
-        cs.execute("Select * from member_info where mobile='%s'" % n)
+    def findByMobile(m):
+        cs.execute("Select * from member_info where mobile='%s'" % m)
         t = cs.fetchall()
         nt = []
         for i in t:
             nt.append(i[:6])
-        print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities']))
+        print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities'],tablefmt='fancy_grid'))
 
 
 
@@ -118,11 +118,11 @@ def main():
 
                 elif ch == 5:
                     n = input('Enter name to find:')
-                    findByName(n)
+                    findByMobile(m)
 
                 elif ch == 6:
                     n = input('Enter name to change:')
-                    findByName(n)
+                    findByMobile(m)
 
                     id = int(input("Enter member ID"))
                     cs.execute("select * from member_package_info where id='%s'" % id)
