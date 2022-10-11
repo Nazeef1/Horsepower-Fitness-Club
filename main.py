@@ -117,11 +117,11 @@ def main():
                                                        'End of Membership'], tablefmt='fancy_grid') + bgc.ENDC)
 
                 elif ch == 5:
-                    n = input('Enter name to find:')
+                    m = input('Enter name to find:')
                     findByMobile(m)
 
                 elif ch == 6:
-                    n = input('Enter name to change:')
+                    m = input('Enter name to change:')
                     findByMobile(m)
 
                     id = int(input("Enter member ID"))
