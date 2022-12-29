@@ -1,10 +1,7 @@
-import datetime
 import mysql.connector as mysql
 from tabulate import tabulate
-import maskpass
 
 def main():
-
 
     def findByMobile(m):
         cs.execute("Select * from member_info where mobile='%s'" % m)
@@ -14,9 +11,6 @@ def main():
             nt.append(i[:6])
         print(tabulate(nt, headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities'],tablefmt='fancy_grid'))
 
-
-
-
     conn = mysql.connect(host='localhost', user='root', password='password')
     cs = conn.cursor()
     cs.execute("create database if not exists horsepower")
@@ -25,7 +19,7 @@ def main():
         'create table if not exists Member_Info(id int(10) primary key not null auto_increment,Member_Name varchar(30),age int,'
         'gender char(1),mobile int unique,Activities varchar(40),password varchar(20))')
     cs.execute(
-        "create table if not exists Member_package_info(packageId int primary key auto_increment, id int(10),special_package varchar(40),total_payment int," +
+        "create table if not exists Member_package_info(packageId int primary key auto_increment,special_package varchar(40),total_payment int," +
         "monthly_payment int,end_of_membership date,constraint foreign key(id) references Member_Info(id) on delete " +
         "cascade)")
     cs.execute("create table if not exists progress_tracker(id int, date date,weight int,height decimal(5,2), " +
@@ -112,19 +106,19 @@ def main():
                     for i in t:
                         nt.append(i[:11])
                     print(bgc.BLUE + tabulate(nt,
-                                              headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities', 'Package ID',
-                                                       'ID', 'Special Package', 'Total Payment', 'Monthly Payment',
+                                              headers=['ID', 'Name', 'Age', 'Gender', 'Mobile', 'Activities', 'Password','Package ID',
+                                                        'Total Payment','Special Package', 'Monthly Payment',
                                                        'End of Membership'], tablefmt='fancy_grid') + bgc.ENDC)
 
                 elif ch == 5:
-                    m = input('Enter name to find:')
+                    m = input('Enter mobile to find:')
                     findByMobile(m)
 
                 elif ch == 6:
-                    m = input('Enter name to change:')
+                    m = input('Enter mobile to change:')
                     findByMobile(m)
 
-                    id = int(input("Enter member ID"))
+                    id = int(input("Enter member ID:"))
                     cs.execute("select * from member_package_info where id='%s'" % id)
                     fet = cs.fetchall()
                     if (len(fet) != 0):
